@@ -23,14 +23,16 @@ text {
 
 </style>
 <body>
-<h1>hello</h1>
+<h1>vol1</h1>
 </body>
 <script src="d3/d3.min.js"></script>
 <script src="d3//queue.v1.min.js"></script>
 <script>
 
 
-var allData=[];
+var stock1=[];
+var stock2=[];
+var allStocks = [stock1, stock2];
 
 function createData(x, y){
   var aData = {};
@@ -40,28 +42,39 @@ function createData(x, y){
   return aData;
 }
 
+
+var format = d3.time.format("%Y-%m-%d");
+var formatDayMonth = d3.time.format("%e");
+var myDate;
+
+var a1 = {x:0, y:1};
+var a2 = {x:1, y:1};
+var b1 = {x:0, y:3};
+var b2 = {x:1, y:5};
+
+var aTest = [a1, a2];
+var bTest = [b1, b2];
+var allTest = [aTest];
+
 queue()
-  .defer(d3.json, "messages/aapl.json")
+  .defer(d3.json, "messages/n_aapl.json")
+  .defer(d3.json, "messages/n_msft.json")
   //.defer(d3.csv, "house.csv")
   .await(ready);
 
-function ready(error, volume) { 
+function ready(error, vol1, vol2) { 
   
-  for(var i=0; i < volume.length; i++){
-    allData.push(createData(i, volume[i].volume_score)); 
-    //console.log(allData[i]);
+  for(var i=0; i < vol1.length; i++){
+    stock1.push(createData(i, vol1[i].volume_score));
+    stock2.push(createData(i, vol2[i].volume_score));
   }
- 
 
-var n = 1, // number of layers
-    //m = volume.length, // number of samples per layer
-    m = 2;
+var n = 2, // number of layers
+    m = vol1.length, // number of samples per layer
     stack = d3.layout.stack(),
-    layers = stack(d3.range(n).map(function(d) { return allData[0]})),
-    yGroupMax = d3.max(layers, function(layer) { console.log("layer " + layer); return d3.max(layer, function(d) { return d.y; }); }),
+    layers = stack(d3.range(n).map(function(d) { return allStocks[d]})),
+    yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); }),
     yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); }); 
-
-
 
 var margin = {top: 40, right: 10, bottom: 20, left: 10},
     width = 960 - margin.left - margin.right,
@@ -84,7 +97,12 @@ var xAxis = d3.svg.axis()
     .tickSize(0)
     .tickPadding(6)
     .orient("bottom")
-    .tickFormat(function(d) { return volume[d].timestamp; });
+    .tickFormat(function(d) { 
+      //return vol1[d].timestamp; 
+      myDate = new Date(format.parse(vol1[d].timestamp));
+      return(formatDayMonth(myDate));
+      //console.log(formatDayMonth(myDate));
+    });
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
