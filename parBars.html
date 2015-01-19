@@ -28,11 +28,11 @@ h1 {
 .legend {
   fill:#eee;
   opacity:0.8;
+  line-height: 200%;
 }
 
 .legend-items{
   font-size: 14px;
-
   fill:#111;
 } 
 
@@ -107,8 +107,14 @@ var y = d3.scale.linear()
     .range([height, 0]);
 
 var color = d3.scale.linear()
+    .domain([-1, 10]).
+    range([0, 10]);
+/*
     .domain([0, n - 1])
     .range(["#222", "#888"]);
+    */
+
+
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -131,7 +137,7 @@ var layer = svg.selectAll(".layer")
     .data(layers)
   .enter().append("g")
     .attr("class", "layer")
-    .style("fill", function(d, i) { return color(i); })
+    .style("fill", function(d, i) { console.log(color(i); return color(i); })
     .attr("data-legend",function(d, i) { return allStocks[i].name});
 
 
