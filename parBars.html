@@ -4,14 +4,18 @@
 <style>
 
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin: auto;
   position: relative;
   width: 960px;
+  font-size: 8px;
 }
 
-text {
-  font: 10px sans-serif;
+h1 {
+  font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  color: #444;
+  font-size: 24px;
 }
 
 .axis path,
@@ -21,55 +25,69 @@ text {
   shape-rendering: crispEdges;
 }
 
+.legend {
+  fill:#eee;
+  opacity:0.8;
+}
+
+.legend-items{
+  font-size: 14px;
+
+  fill:#111;
+} 
+
+
+
 </style>
 <body>
-<h1>vol1</h1>
+<h1>daily message volume</h1>
 </body>
 <script src="d3/d3.min.js"></script>
-<script src="d3//queue.v1.min.js"></script>
+<script src="d3/queue.v1.min.js"></script>
+<script src="d3/d3.legend.js"></script>
 <script>
 
 
 var stock1=[];
 var stock2=[];
-var allStocks = [stock1, stock2];
+var stock3=[];
+var stock4=[];
+var allStocks = [stock1, stock2, stock3, stock4];
 
-function createData(x, y){
+stock1.name = "AAPL";
+stock2.name = "MSFT";
+stock3.name = "FB";
+stock4.name = "GOOG";
+
+function createStock(x, y){
   var aData = {};
   aData.x = x;
   aData.y = y;
-  //aData.y0 = 0;
   return aData;
 }
-
 
 var format = d3.time.format("%Y-%m-%d");
 var formatDayMonth = d3.time.format("%e");
 var myDate;
 
-var a1 = {x:0, y:1};
-var a2 = {x:1, y:1};
-var b1 = {x:0, y:3};
-var b2 = {x:1, y:5};
-
-var aTest = [a1, a2];
-var bTest = [b1, b2];
-var allTest = [aTest];
-
 queue()
   .defer(d3.json, "messages/n_aapl.json")
   .defer(d3.json, "messages/n_msft.json")
+  .defer(d3.json, "messages/n_fb.json")
+  .defer(d3.json, "messages/n_goog.json")
   //.defer(d3.csv, "house.csv")
   .await(ready);
 
-function ready(error, vol1, vol2) { 
+function ready(error, vol1, vol2, vol3, vol4) { 
   
   for(var i=0; i < vol1.length; i++){
-    stock1.push(createData(i, vol1[i].volume_score));
-    stock2.push(createData(i, vol2[i].volume_score));
+    stock1.push(createStock(i, vol1[i].volume_score));
+    stock2.push(createStock(i, vol2[i].volume_score));
+    stock3.push(createStock(i, vol3[i].volume_score));
+    stock4.push(createStock(i, vol4[i].volume_score));
   }
 
-var n = 2, // number of layers
+var n = 4, // number of layers
     m = vol1.length, // number of samples per layer
     stack = d3.layout.stack(),
     layers = stack(d3.range(n).map(function(d) { return allStocks[d]})),
@@ -78,7 +96,7 @@ var n = 2, // number of layers
 
 var margin = {top: 40, right: 10, bottom: 20, left: 10},
     width = 960 - margin.left - margin.right,
-    height = 200 - margin.top - margin.bottom;
+    height = 400 - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
     .domain(d3.range(m))
@@ -90,7 +108,7 @@ var y = d3.scale.linear()
 
 var color = d3.scale.linear()
     .domain([0, n - 1])
-    .range(["#aad", "#556"]);
+    .range(["#222", "#888"]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -101,7 +119,6 @@ var xAxis = d3.svg.axis()
       //return vol1[d].timestamp; 
       myDate = new Date(format.parse(vol1[d].timestamp));
       return(formatDayMonth(myDate));
-      //console.log(formatDayMonth(myDate));
     });
 
 var svg = d3.select("body").append("svg")
@@ -114,7 +131,9 @@ var layer = svg.selectAll(".layer")
     .data(layers)
   .enter().append("g")
     .attr("class", "layer")
-    .style("fill", function(d, i) { return color(i); });
+    .style("fill", function(d, i) { return color(i); })
+    .attr("data-legend",function(d, i) { return allStocks[i].name});
+
 
 var rect = layer.selectAll("rect")
     .data(function(d) { return d; })
@@ -135,6 +154,15 @@ svg.append("g")
     .call(xAxis);
 
 transitionStacked();
+
+legend = svg.append("g")
+    //.data(function(d) { return d; })
+    .attr("class","legend")
+    .attr("transform","translate(0,0)")
+    .attr("height", 200)
+    .attr("width", 200)
+    //.style("font-size","12px")
+    .call(d3.legend);
 
 function transitionStacked() {
   y.domain([0, yStackMax]);
