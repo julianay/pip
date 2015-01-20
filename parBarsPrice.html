@@ -38,7 +38,7 @@ h1 {
 
 </style>
 <body>
-<h1>daily message volume</h1>
+<h1>daily price change</h1>
 </body>
 <script src="d3/d3.min.js"></script>
 <script src="d3/queue.v1.min.js"></script>
@@ -68,25 +68,37 @@ function createStock(x, y){
   return aData;
 }
 
-var format = d3.time.format("%Y-%m-%d");
+function reformat(d){
+	return d3.time.format('%Y/%m/%d')(d3.time.format('%m/%d/%Y').parse(d));
+}
+
+var format = d3.time.format("%m/%d/%Y");
 var formatDayMonth = d3.time.format("%e");
 var myDate;
 
 queue()
-  .defer(d3.json, "data/m_aapl.json")
-  .defer(d3.json, "data/m_msft.json")
-  .defer(d3.json, "data/m_fb.json")
-  .defer(d3.json, "data/m_goog.json")
+  .defer(d3.json, "data/p_aapl.json")
+  .defer(d3.json, "data/p_msft.json")
+  .defer(d3.json, "data/p_fb.json")
+  .defer(d3.json, "data/p_goog.json")
   //.defer(d3.csv, "house.csv")
   .await(ready);
 
 function ready(error, vol1, vol2, vol3, vol4) { 
   
   for(var i=0; i < vol1.length; i++){
-    stock1.push(createStock(i, vol1[i].volume_score));
-    stock2.push(createStock(i, vol2[i].volume_score));
-    stock3.push(createStock(i, vol3[i].volume_score));
-    stock4.push(createStock(i, vol4[i].volume_score));
+  	
+    stock1.push(createStock(i, Math.abs(+(vol1[i].close) -(vol1[i].open))));
+    stock2.push(createStock(i, Math.abs(+(vol2[i].close) -(vol2[i].open))));
+    stock3.push(createStock(i, Math.abs(+(vol3[i].close) -(vol3[i].open))));
+    stock4.push(createStock(i, Math.abs(+(vol4[i].close) -(vol4[i].open))));
+    
+    /*
+    stock1.push(createStock(i, +(vol1[i].volume)));
+    stock2.push(createStock(i, +(vol2[i].volume)));
+    stock3.push(createStock(i, +(vol3[i].volume)));
+    stock4.push(createStock(i, +(vol4[i].volume)));
+    */
   }
 
 var n = 4, // number of layers
@@ -115,7 +127,9 @@ var xAxis = d3.svg.axis()
     .orient("bottom")
     .tickFormat(function(d) { 
       //return vol1[d].timestamp; 
-      myDate = new Date(format.parse(vol1[d].timestamp));
+      //console.log("----- " + reformat(vol1[d].date));
+      //myDate = new Date(format.parse(vol1[d].date));
+      myDate = new Date(format.parse(vol1[d].date));
       return(formatDayMonth(myDate));
     });
 
