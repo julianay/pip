@@ -77,10 +77,10 @@ var formatDayMonth = d3.time.format("%e");
 var myDate;
 
 queue()
-  .defer(d3.json, "data/p_aapl.json")
-  .defer(d3.json, "data/p_msft.json")
-  .defer(d3.json, "data/p_fb.json")
-  .defer(d3.json, "data/p_goog.json")
+  .defer(d3.json, "data/pn_aapl.json")
+  .defer(d3.json, "data/pn_msft.json")
+  .defer(d3.json, "data/pn_fb.json")
+  .defer(d3.json, "data/pn_goog.json")
   //.defer(d3.csv, "house.csv")
   .await(ready);
 

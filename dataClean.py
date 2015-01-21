@@ -8,9 +8,10 @@ with open('historicalPrices/msft.csv', 'rt') as fin:
     for i in reversed(test): 
         print(i) 
         
-
-with open('p_msft.json', 'w') as outfile:
+'''
+with open('data/p_msft.json', 'w') as outfile:
     json.dump(test, outfile)
+    '''
 
 #myList = [i for i in range(10)]
 #print(myList)
