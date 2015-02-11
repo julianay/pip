@@ -1,5 +1,8 @@
+# on the messages data, changes 'volume_score' to messages 
+# because prices also has a field named 'volume_score"
+
 import json
-json_data=open('data/m_aapl.json')
+json_data=open('data/m_twtr.json')
 json_str = json_data.read()
 json_dict = json.loads(json_str)
 #print(json_dict[0].keys())
@@ -12,7 +15,7 @@ for i in json_dict:
     #print(i['volume_score'])
 
 print(json_dict)    
-with open('test.json', 'w') as outfile:
+with open('data/mm_twtr.json', 'w') as outfile:
     json.dump(json_dict, outfile)
          
 json_data.close()
