@@ -2,7 +2,6 @@
 
 import json
 from pprint import pprint
-#json_data=open('data/p_msft.json')
 json_data=open('data/p_twtr.json')
 new_data = []
 data = json.load(json_data)
