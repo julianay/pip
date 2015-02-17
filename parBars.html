@@ -73,20 +73,20 @@ var formatDayMonth = d3.time.format("%e");
 var myDate;
 
 queue()
-  .defer(d3.json, "data/m_aapl.json")
-  .defer(d3.json, "data/m_msft.json")
-  .defer(d3.json, "data/m_fb.json")
-  .defer(d3.json, "data/m_goog.json")
+  .defer(d3.json, "newData/m_aapl.json")
+  .defer(d3.json, "newData/m_msft.json")
+  .defer(d3.json, "newData/m_fb.json")
+  .defer(d3.json, "newData/m_goog.json")
   //.defer(d3.csv, "house.csv")
   .await(ready);
 
 function ready(error, vol1, vol2, vol3, vol4) { 
   
   for(var i=0; i < vol1.length; i++){
-    stock1.push(createStock(i, vol1[i].volume_score));
-    stock2.push(createStock(i, vol2[i].volume_score));
-    stock3.push(createStock(i, vol3[i].volume_score));
-    stock4.push(createStock(i, vol4[i].volume_score));
+    stock1.push(createStock(i, vol1[i].messages));
+    stock2.push(createStock(i, vol2[i].messages));
+    stock3.push(createStock(i, vol3[i].messages));
+    stock4.push(createStock(i, vol4[i].messages));
   }
 
 var n = 4, // number of layers
