@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: auto;
+  position: relative;
+  width: 960px;
+  font-size: 8px;
+}
+
+h1 {
+  font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  color: #444;
+  font-size: 24px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.legend {
+  fill:#eee;
+  opacity:0.8;
+  line-height: 200%;
+}
+
+.legend-items{
+  font-size: 14px;
+  fill:#111;
+} 
+
+</style>
+<body>
+<h1>daily message volume</h1>
+</body>
+<script src="d3/d3.min.js"></script>
+<script src="d3/queue.v1.min.js"></script>
+<script src="d3/d3.legend.js"></script>
+<script>
+
+var cLayer = ["#be5021", "#40709c", "#a0c83c", "#78b3b2"];
+
+var stock1=[];
+var stock2=[];
+var stock3=[];
+var stock4=[];
+var allStocks = [stock1, stock2, stock3, stock4];
+
+stock1.name = "AAPL";
+stock2.name = "MSFT";
+stock3.name = "FB";
+stock4.name = "GOOG";
+
+var c10 = d3.scale.category10();
+console.log(c10);
+
+function createStock(x, y){
+  var aData = {};
+  aData.x = x;
+  aData.y = y;
+  return aData;
+}
+
+var format = d3.time.format("%Y-%m-%d");
+var formatDayMonth = d3.time.format("%e");
+var myDate;
+
+queue()
+  .defer(d3.json, "data/frame_aapl.json")
+ // .defer(d3.json, "newData/m_msft.json")
+ // .defer(d3.json, "newData/m_fb.json")
+ // .defer(d3.json, "newData/m_goog.json")
+  .await(ready);
+
+function ready(error, vol1) { 
+  console.log(vol1[0].messages);
+  console.log(vol1[0].date);
+}
+
+
+/*
+function ready(error, vol1, vol2, vol3, vol4) { 
+  
+  for(var i=0; i < vol1.length; i++){
+    stock1.push(createStock(i, vol1[i].messages));
+    stock2.push(createStock(i, vol2[i].messages));
+    stock3.push(createStock(i, vol3[i].messages));
+    stock4.push(createStock(i, vol4[i].messages));
+  }
+
+var n = 4, // number of layers
+    m = vol1.length, // number of samples per layer
+    stack = d3.layout.stack(),
+    layers = stack(d3.range(n).map(function(d) { return allStocks[d]})),
+    yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); }),
+    yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); }); 
+
+var margin = {top: 40, right: 10, bottom: 20, left: 10},
+    width = 960 - margin.left - margin.right,
+    height = 200 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .domain(d3.range(m))
+    .rangeRoundBands([0, width], .08);
+
+var y = d3.scale.linear()
+    .domain([0, yStackMax])
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .tickSize(0)
+    .tickPadding(6)
+    .orient("bottom")
+    .tickFormat(function(d) { 
+      //return vol1[d].timestamp; 
+      myDate = new Date(format.parse(vol1[d].timestamp));
+      return(formatDayMonth(myDate));
+    });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var layer = svg.selectAll(".layer")
+    .data(layers)
+  .enter().append("g")
+    .attr("class", "layer")
+    .style("fill", function(d, i) { return cLayer[i]; })
+    .attr("data-legend",function(d, i) { return allStocks[i].name});
+
+
+var rect = layer.selectAll("rect")
+    .data(function(d) { return d; })
+  .enter().append("rect")
+    .attr("x", function(d) { return x(d.x); })
+    .attr("y", height)
+    .attr("width", x.rangeBand())
+    .attr("height", 0);
+
+rect.transition()
+    .delay(function(d, i) { return i * 10; })
+    .attr("y", function(d) { return y(d.y0 + d.y); })
+    .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); });
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+transitionStacked();
+
+legend = svg.append("g")
+    .attr("class","legend")
+    .attr("transform","translate(0,0)")
+    .attr("height", 200)
+    .attr("width", 200)
+    .call(d3.legend);
+
+function transitionStacked() {
+  y.domain([0, yStackMax]);
+
+  rect.transition()
+      .duration(500)
+      .delay(function(d, i) { return i * 10; })
+      .attr("y", function(d) { return y(d.y0 + d.y); })
+      .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
+    .transition()
+      .attr("x", function(d) { return x(d.x); })
+      .attr("width", x.rangeBand());
+}
+
+}//end of wait*/
+</script>
+</html>

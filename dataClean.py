@@ -5,7 +5,7 @@ import json
 import glob
 import re
 
-data_reverse = []
+
 
 #extracting file name
 start = '/'
@@ -14,6 +14,7 @@ end = '.csv'
 fileList_csv = glob.glob('rawData/*.csv')
 #extract the filename (stockSymbol) for each path
 for filename in fileList_csv:
+    data_reverse = []
     stockSymbol = re.search('%s(.*)%s' % (start, end), filename).group(1)
     #create new filename path for output
     filePathOut = 'newData/' + "p_" + stockSymbol + '.json'
@@ -22,7 +23,7 @@ for filename in fileList_csv:
         cin = csv.DictReader(fin)
         pRow = [row for row in cin]
         for da in range((len(pRow)-1), -1, -1):
-            data_reverse.append(pRow[da])    
+            data_reverse.append(pRow[da])
             
     with open(filePathOut, 'w') as outfile:
         json.dump(data_reverse, outfile)
