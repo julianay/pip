@@ -23,6 +23,7 @@ for filename in fileList_csv:
         cin = csv.DictReader(fin)
         pRow = [row for row in cin]
         for da in range((len(pRow)-1), -1, -1):
+            pRow[da]['stock'] = stockSymbol
             data_reverse.append(pRow[da])
             
     with open(filePathOut, 'w') as outfile:
@@ -43,6 +44,7 @@ for filename in fileList_json:
     for da in range((len(data)-1), -1, -1):
         #changes volume_score to messages
         data[da]['messages'] = data[da].pop('volume_score')
+        data[da]['stock'] = stockSymbol
         new_data.append(data[da])
         json_data.close()
         with open(filePathOut, 'w') as outfile:

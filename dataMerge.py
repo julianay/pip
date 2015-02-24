@@ -51,5 +51,5 @@ for filename in fileList_json:
         #padding the missing weekend and holidays - fill values forward
         frame = frame.fillna(method='pad')
         #print(frame.timestamp)
-        frame.to_json(filePathOut, orient='index')
+        frame.to_json(filePathOut, orient='records')
         frame.to_csv('data/' + stockSymbol + '.csv')
