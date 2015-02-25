@@ -1,0 +1,66 @@
+$bkgColor: #111;
+
+ @mixin font-style{
+  font-family: 'Roboto Slab', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 700;
+ }
+
+  @mixin font-style-bar{
+  font-family: 'Roboto Slab',"HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.2px;
+  fill: $textColorCategory;
+  font-size:14px;
+ }
+
+@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,900);
+strong {
+  font-weight: 900;
+}
+
+h1 {
+  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 200;
+  letter-spacing: -0.8px;
+  font-size: 38px;
+  margin-top: 20px;
+  margin-left: 54px;
+  color: #575552;
+}
+
+body {
+  /*
+  @include font-style-light;
+  */
+  font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+}
+
+strong{
+	font-size: 16px;
+}
+
+.chart { 
+  margin-top:40px;
+  margin-left: 20px;
+  background: #fff;
+}
+
+.tooltip {
+  margin-top:50px;
+  margin-left: 10px;
+  text-transform: uppercase;
+  color: #444;
+}
+
+p {
+  font: 12px helvetica;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
