@@ -31,44 +31,79 @@ function createStock(key, date, value){
   return aData;
 }
 
+
+/*
+function createStock(key, date, value){
+  var aData = {};
+  if(value > 0){
+  	//console.log("positive");
+  	aData.key = "+" + key;
+  	aData.value = value;
+  }else if (value == 0){
+  	console.log("0")
+  }else{
+  	console.log("negative");
+  }
+  aData.key = key;
+  aData.date = format.parse(date);
+  //console.log(aData.date);
+  aData.value = Math.abs(value);
+  aData.valueActual = value;
+  return aData;
+}
+*/
+
 queue()
   .defer(d3.json, "data/frame_aapl.json")
- //.defer(d3.json, "data/frame_msft.json")
+ // .defer(d3.json, "data/frame_msft.json")
  // .defer(d3.json, "data/frame_fb.json")
-  .defer(d3.json, "data/frame_goog.json")
+ // .defer(d3.json, "data/frame_goog.json")
  // .defer(d3.json, "data/frame_twtr.json")
   .await(ready);
 
 //function ready(error, vol1, vol2, vol3, vol4, vol5) { 
-function ready(error, vol1, vol2) {   
+function ready(error, vol1) {   
 	//console.log(vol1.length);
   for(var i=0; i < vol1.length; i++){
 	if( (+(vol1[i].close) -(vol1[i].open))> 0 ){
-    mergeStocks.push(createStock("-" + vol1[i].stock, vol1[i].timestamp, 0 ));
 		mergeStocks.push(createStock("+" + vol1[i].stock, vol1[i].timestamp, (+(vol1[i].close) -(vol1[i].open))));
-
-    mergeStocks.push(createStock("-" + vol2[i].stock, vol2[i].timestamp, 0 ));
-    mergeStocks.push(createStock("+" + vol2[i].stock, vol2[i].timestamp, (+(vol2[i].close) -(vol2[i].open))));
-
+		mergeStocks.push(createStock("-" + vol1[i].stock, vol1[i].timestamp, 0 ));
 	}else if( (+(vol1[i].close) -(vol1[i].open))< 0 ){
-    mergeStocks.push(createStock("+" + vol1[i].stock, vol1[i].timestamp, 0 ));
 		mergeStocks.push(createStock("-" + vol1[i].stock, vol1[i].timestamp, (+(vol1[i].close) -(vol1[i].open))));
-
-    mergeStocks.push(createStock("+" + vol2[i].stock, vol2[i].timestamp, 0 ));
-    mergeStocks.push(createStock("-" + vol2[i].stock, vol2[i].timestamp, (+(vol2[i].close) -(vol2[i].open))));
-
-	}else{
-    mergeStocks.push(createStock("-" + vol1[i].stock, vol1[i].timestamp, 0 ));
 		mergeStocks.push(createStock("+" + vol1[i].stock, vol1[i].timestamp, 0 ));
-
-    mergeStocks.push(createStock("-" + vol2[i].stock, vol2[i].timestamp, 0 ));
-    mergeStocks.push(createStock("+" + vol2[i].stock, vol2[i].timestamp, 0 ));
+	}else{
+		mergeStocks.push(createStock("+" + vol1[i].stock, vol1[i].timestamp, 0 ));
+		mergeStocks.push(createStock("-" + vol1[i].stock, vol1[i].timestamp, 0 ));
 	}
+
+	/*
+  	mergeStocks.push(createStock(vol1[i].stock, vol1[i].timestamp, (+(vol1[i].close) -(vol1[i].open))));
+  	mergeStocks.push(createStock(vol2[i].stock, vol2[i].timestamp, (+(vol2[i].close) -(vol2[i].open))));
+  	mergeStocks.push(createStock(vol3[i].stock, vol3[i].timestamp, (+(vol3[i].close) -(vol3[i].open))));
+  	mergeStocks.push(createStock(vol4[i].stock, vol4[i].timestamp, (+(vol4[i].close) -(vol4[i].open))));
+  	mergeStocks.push(createStock(vol5[i].stock, vol5[i].timestamp, (+(vol5[i].close) -(vol5[i].open))));
+  	*/
+  	
+  	/*
+  	mergeStocks.push(createStock(vol1[i].stock, vol1[i].timestamp, Math.abs(+(vol1[i].close) )));
+  	mergeStocks.push(createStock(vol2[i].stock, vol2[i].timestamp, Math.abs(+(vol2[i].close) )));
+  	mergeStocks.push(createStock(vol3[i].stock, vol3[i].timestamp, Math.abs(+(vol3[i].close) )));
+  	mergeStocks.push(createStock(vol4[i].stock, vol4[i].timestamp, Math.abs(+(vol4[i].close) )));
+  	mergeStocks.push(createStock(vol5[i].stock, vol5[i].timestamp, Math.abs(+(vol5[i].close) )));
+  	*/
+
+  	/*
+  	mergeStocks.push(createStock(vol1[i].stock, vol1[i].timestamp, vol1[i].messages));
+  	mergeStocks.push(createStock(vol2[i].stock, vol2[i].timestamp, vol2[i].messages));
+  	mergeStocks.push(createStock(vol3[i].stock, vol3[i].timestamp, vol3[i].messages));
+  	mergeStocks.push(createStock(vol4[i].stock, vol4[i].timestamp, vol4[i].messages));
+  	mergeStocks.push(createStock(vol5[i].stock, vol5[i].timestamp, vol5[i].messages));
+  	*/
 
   	allDates.push(outputFormat(format.parse(vol1[i].timestamp)));
   }
 
-colorrange = ["#ae0000", "#548f00", "#ae0000", "#548f00", "#D0D1E6", "#F1EEF6"];
+colorrange = ["#045A8D", "#000000", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"];
 strokecolor = colorrange[0];
 
 var margin = {top: 20, right: 40, bottom: 30, left: 30};
@@ -105,7 +140,7 @@ var yAxisr = d3.svg.axis()
     .scale(y);
 
 var stack = d3.layout.stack()
-    .offset("wiggle")
+    .offset("zero")
     .values(function(d) { return d.values; })
     .x(function(d) { return d.date; })
     .y(function(d) { return d.value; });

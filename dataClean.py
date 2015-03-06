@@ -6,7 +6,6 @@ import glob
 import re
 
 
-
 #extracting file name
 start = '/'
 end = '.csv'
