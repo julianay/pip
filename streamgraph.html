@@ -15,10 +15,20 @@
 
 //style colors
 strokecolor = "#eee";
+
+
 //positive colors
-cColors = ["#007d93", "#7fbec9", "#c2e0e5", 
+cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5", 
 //negative colors
-"#ac4a01", "#da7f3d", "#eab792"]; 
+"#6a2d00", "#903d00", "#ac4a01", "#da7f3d", "#eab792"]; 
+
+/*
+//positive colors
+cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5", 
+//negative colors
+"#222", "#444", "#888", "#aaa", "#eee"]; 
+*/
+
 
 var mergeStocks =[];
 var allDates = [];
@@ -36,12 +46,22 @@ function createStock(key, date, value){
   return aData;
 }
 
+function stockCalc(value, j, i){
+  var cValue = (+(value.close) -(value.open));
+  //var cValue = value.close;
+  return cValue;
+} 
+
+function stockExp(value, j, i){
+  return (+(value.close) -(value.open));
+}
+
 queue()
  .defer(d3.json, "data/frame_aapl.json")
- // .defer(d3.json, "data/frame_fb.json")
- // .defer(d3.json, "data/frame_goog.json")
+  .defer(d3.json, "data/frame_fb.json")
   .defer(d3.json, "data/frame_twtr.json")
   .defer(d3.json, "data/frame_msft.json")
+  .defer(d3.json, "data/frame_goog.json")
   .await(ready);
 
 //will take arguments that are added to the queue 
@@ -49,12 +69,12 @@ function ready(error) {
   for(var i=0; i < arguments[1].length; i++){
     //j=1 because we skip error
     for(var j=1; j < arguments.length; j++){
-      if( (+(arguments[j][i].close) -(arguments[j][i].open)) > 0 ){
+      if(stockExp(arguments[j][i], j, i) > 0){
         mergeStocks.push(createStock("-" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
-        mergeStocks.push(createStock("+" + arguments[j][i].stock, arguments[j][i].timestamp, (+(arguments[j][i].close) -(arguments[j][i].open))));
-      }else if( (+(arguments[j][i].close) -(arguments[j][i].open)) < 0 ){
+        mergeStocks.push(createStock("+" + arguments[j][i].stock, arguments[j][i].timestamp, stockCalc(arguments[j][i]) ));
+      }else if (stockExp(arguments[j][i], j, i) < 0){  
         mergeStocks.push(createStock("+" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
-        mergeStocks.push(createStock("-" + arguments[j][i].stock, arguments[j][i].timestamp, (+(arguments[j][i].close) -(arguments[j][i].open))));
+        mergeStocks.push(createStock("-" + arguments[j][i].stock, arguments[j][i].timestamp, stockCalc(arguments[j][i]) ));
       }else{
         mergeStocks.push(createStock("-" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
         mergeStocks.push(createStock("+" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
@@ -133,20 +153,30 @@ var svg = d3.select(".chart").append("svg")
     	.enter().append("path")
       .attr("class", "layer")
       .attr("d", function(d) { return area(d.values); })
+      //.style("stroke", "#333")
       .style("fill", function(d, i) { 
+
         switch(d.key){
           case "+aapl":
             return cColors[0];
-          case "+twtr":
+          case "+fb":
             return cColors[1]; 
+          case "+twtr":
+            return cColors[2];
           case "+msft":
-            return cColors[2]; 
+            return cColors[3];
+          case "+goog":
+            return cColors[4];     
           case "-aapl":
-            return cColors[3]; 
+            return cColors[5]; 
+          case "-fb":
+            return cColors[6];   
           case "-twtr":
-            return cColors[4];   
+            return cColors[7]; 
           case "-msft":
-            return cColors[5];      
+            return cColors[8];
+          case "-goog":
+            return cColors[9];          
         }
       });
 
