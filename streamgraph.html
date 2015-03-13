@@ -47,13 +47,17 @@ function createStock(key, date, value){
 }
 
 function stockCalc(value, j, i){
-  var cValue = (+(value.close) -(value.open));
+  //var cValue = (+(value.close) -(value.open));
   //var cValue = value.close;
+  var cValue = value.messages;
+  //var cValue = value.volume;
   return cValue;
 } 
 
 function stockExp(value, j, i){
-  return (+(value.close) -(value.open));
+  //return (+(value.high) -(value.low));
+  return value.messages;
+  //return value.volume;
 }
 
 queue()
@@ -83,7 +87,7 @@ function ready(error) {
   	allDates.push(outputFormat(format.parse(arguments[1][i].timestamp)));
   }
 
-var margin = {top: 20, right: 40, bottom: 30, left: 30};
+var margin = {top: 20, right: 40, bottom: 30, left: 100};
 var width = 900 - margin.left - margin.right;
 var height = 400 - margin.top - margin.bottom;
 
@@ -117,7 +121,7 @@ var yAxisr = d3.svg.axis()
     .scale(y);
 
 var stack = d3.layout.stack()
-    .offset("silhouette")
+    .offset("zero")
     .values(function(d) { return d.values; })
     .x(function(d) { return d.date; })
     .y(function(d) { return d.value; });
