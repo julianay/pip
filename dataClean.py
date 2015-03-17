@@ -4,6 +4,7 @@ import csv
 import json
 import glob
 import re
+import ast
 
 
 #extracting file name
@@ -21,7 +22,13 @@ for filename in fileList_csv:
     with open(filename, 'rt') as fin:
         cin = csv.DictReader(fin)
         pRow = [row for row in cin]
+        pRowString = str(pRow).lower()
+        pRow = ast.literal_eval(pRowString)
+        
         for da in range((len(pRow)-1), -1, -1):
+            pRow[(len(pRow)-1)]['change']=0
+            if(da < (len(pRow)-1)):
+                pRow[da]['change'] = float(pRow[da]['close']) - float(pRow[da+1]['close'])
             pRow[da]['stock'] = stockSymbol
             data_reverse.append(pRow[da])
             

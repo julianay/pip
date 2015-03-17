@@ -49,14 +49,14 @@ function createStock(key, date, value){
 function stockCalc(value, j, i){
   //var cValue = (+(value.close) -(value.open));
   //var cValue = value.close;
-  var cValue = value.messages;
+  var cValue = value.change;
   //var cValue = value.volume;
   return cValue;
 } 
 
 function stockExp(value, j, i){
   //return (+(value.high) -(value.low));
-  return value.messages;
+  return value.change;
   //return value.volume;
 }
 
@@ -121,7 +121,7 @@ var yAxisr = d3.svg.axis()
     .scale(y);
 
 var stack = d3.layout.stack()
-    .offset("zero")
+    .offset("silhouette")
     .values(function(d) { return d.values; })
     .x(function(d) { return d.date; })
     .y(function(d) { return d.value; });
