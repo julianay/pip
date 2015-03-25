@@ -16,18 +16,17 @@
 //style colors
 strokecolor = "#eee";
 
-
-//positive colors
-cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5", 
-//negative colors
-"#6a2d00", "#903d00", "#ac4a01", "#da7f3d", "#eab792"]; 
-
 /*
 //positive colors
 cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5", 
 //negative colors
-"#222", "#444", "#888", "#aaa", "#eee"]; 
+"#6a2d00", "#903d00", "#ac4a01", "#da7f3d", "#eab792"]; 
 */
+
+//positive colors
+cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5", 
+//negative colors
+"#222", "#444", "#888", "#aaa", "#eee"]; 
 
 
 var mergeStocks =[];
@@ -89,7 +88,7 @@ function ready(error) {
 
 var margin = {top: 20, right: 40, bottom: 30, left: 100};
 var width = 900 - margin.left - margin.right;
-var height = 800 - margin.top - margin.bottom;
+var height = 400 - margin.top - margin.bottom;
 
 var tooltip = d3.select("body")
     .append("div")

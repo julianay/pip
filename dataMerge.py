@@ -34,14 +34,17 @@ for filename in fileList_json:
         json_str_p = json_data_p.read()
         json_dict_p = json.loads(json_str_p)
         json_data_p.close()
-
+        
+        #converting dates on price and message files to merge the data
         frame_p = DataFrame(json_dict_p)
         frame_p['date'] = pd.to_datetime(frame_p['date'])
-
+        
+        #select the columns that will be used in dataframe
         frame_m = DataFrame(json_dict_m, columns=['timestamp', 'date', 'messages'])
         frame_m['date'] = pd.to_datetime(frame_m['timestamp'])
         frame_m.drop('timestamp', 1)
-
+        
+        #merging message and price
         frame = pd.merge(frame_m, frame_p, on='date', how='outer')
         frame = frame[frame.timestamp != np.nan]
 
