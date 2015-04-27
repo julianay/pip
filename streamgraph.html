@@ -16,18 +16,18 @@
 //style colors
 strokecolor = "#eee";
 
-/*
+
 //positive colors
 cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5", 
 //negative colors
 "#6a2d00", "#903d00", "#ac4a01", "#da7f3d", "#eab792"]; 
-*/
 
+/*
 //positive colors
 cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5", 
 //negative colors
 "#222", "#444", "#888", "#aaa", "#eee"]; 
-
+*/
 
 var mergeStocks =[];
 var allDates = [];
@@ -124,7 +124,7 @@ var yAxisr = d3.svg.axis()
     .scale(y);
 
 var stack = d3.layout.stack()
-    .offset("silhouette")
+    .offset("zero")
     .values(function(d) { return d.values; })
     .x(function(d) { return d.date; })
     .y(function(d) { return d.value; });
