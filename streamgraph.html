@@ -29,9 +29,8 @@ cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5",
 "#222", "#444", "#888", "#aaa", "#eee"]; 
 */
 
-var mergeStocks =[];
-var allDates = [];
-var datearray = [];
+var mergeStocks =[]; //store merged stock data (from different stocks)
+var allDates = []; //stores dates
 var colorrange = [];
 var format = d3.time.format("%Y-%m-%d");
 var outputFormat = d3.time.format("%x");
@@ -41,13 +40,15 @@ var mouseXOffset = 10;
 var mouseYOffset = 40;
 
 function createStock(key, date, value){
-  var aData = {};
-  aData.key = key;
-  aData.date = format.parse(date);
-  aData.value = Math.abs(value);
-  aData.valueActual = value;
-  return aData;
+  var aStock = {};
+  aStock.key = key;
+  aStock.date = format.parse(date);
+  aStock.value = Math.abs(value);
+  aStock.valueActual = value;
+  return aStock;
 }
+
+//Function defines what value will be (price, or price change?. etc) 
 
 function stockCalc(value, j, i){
   //var cValue = (+(value.close) -(value.open));
@@ -56,13 +57,13 @@ function stockCalc(value, j, i){
   //var cValue = value.volume;
   return cValue;
 } 
-
+//function defines what expression will be tested, example, is value change positive, neg?
 function stockExp(value, j, i){
   //return (+(value.high) -(value.low));
   return value.change;
   //return value.volume;
 }
-
+//queue loads all files until they are all ready - that kicks in the function in await()
 queue()
  .defer(d3.json, "data/frame_aapl.json")
   .defer(d3.json, "data/frame_fb.json")
@@ -76,6 +77,8 @@ function ready(error) {
   for(var i=0; i < arguments[1].length; i++){
     //j=1 because we skip error
     for(var j=1; j < arguments.length; j++){
+    /*for each value, create a stock object that has the value plus it's opposite, 
+      	so there are 2 lines for each stock, one positive line and one negative line*/
       if(stockExp(arguments[j][i], j, i) > 0){
         mergeStocks.push(createStock("-" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
         mergeStocks.push(createStock("+" + arguments[j][i].stock, arguments[j][i].timestamp, stockCalc(arguments[j][i]) ));
@@ -87,6 +90,8 @@ function ready(error) {
         mergeStocks.push(createStock("+" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
       }
     }
+    /* date data is the same for all stocks so only one load.
+    all dates were normalized in python*/
   	allDates.push(outputFormat(format.parse(arguments[1][i].timestamp)));
   }
 
