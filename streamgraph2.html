@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Streamgraph Price Data</title>
+<style>@import url(css/style.css);</style>
+<script src="d3/d3.min.js"></script>
+<script src="d3/queue.v1.min.js"></script>
+
+<body>
+<h1>Streamgraph Price Data</h1>
+<div class="chart">
+</div>
+</body>
+<script>
+
+//style colors
+strokecolor = "#eee";
+
+
+//positive colors
+cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5", 
+//negative colors
+"#6a2d00", "#903d00", "#ac4a01", "#da7f3d", "#eab792"]; 
+
+/*
+//positive colors
+cColors = ["#00404c", "#00596a", "#007d93", "#7fbec9", "#c2e0e5", 
+//negative colors
+"#222", "#444", "#888", "#aaa", "#eee"]; 
+*/
+
+var mergeStocks =[]; //store merged stock data (from different stocks)
+var allDates = []; //stores dates
+var colorrange = [];
+var format = d3.time.format("%Y-%m-%d");
+var outputFormat = d3.time.format("%x");
+var cWidth = 1000;
+var cHeight = 200;
+var mouseXOffset = 10;
+var mouseYOffset = 40;
+
+function createStock(key, date, value){
+  var aStock = {};
+  aStock.key = key;
+  aStock.date = format.parse(date);
+  aStock.value = Math.abs(value);
+  aStock.valueActual = value;
+  return aStock;
+}
+
+//Function defines what value will be (price, or price change?. etc) 
+
+function stockCalc(value, j, i){
+  //var cValue = (+(value.close) -(value.open));
+  //var cValue = value.close;
+  var cValue = value.change;
+  //var cValue = value.volume;
+  return cValue;
+} 
+//function defines what expression will be tested, example, is value change positive, neg?
+function stockExp(value, j, i){
+  //return (+(value.high) -(value.low));
+  return value.change;
+  //return value.volume;
+}
+//queue loads all files until they are all ready - that kicks in the function in await()
+queue()
+ .defer(d3.json, "data/frame_aapl.json")
+  //.defer(d3.json, "data/frame_fb.json")
+  //.defer(d3.json, "data/frame_twtr.json")
+  //.defer(d3.json, "data/frame_msft.json")
+  //.defer(d3.json, "data/frame_goog.json")
+  .await(ready);
+
+//will take arguments that are added to the queue 
+function ready(error) {    	
+  for(var i=0; i < arguments[1].length; i++){
+    //j=1 because we skip error
+    for(var j=1; j < arguments.length; j++){
+    /*for each value, create a stock object that has the value plus it's opposite, 
+      	so there are 2 lines for each stock, one positive line and one negative line*/
+      if(stockExp(arguments[j][i], j, i) > 0){
+        mergeStocks.push(createStock("-" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
+        mergeStocks.push(createStock("+" + arguments[j][i].stock, arguments[j][i].timestamp, stockCalc(arguments[j][i]) ));
+      }else if (stockExp(arguments[j][i], j, i) < 0){  
+        mergeStocks.push(createStock("+" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
+        mergeStocks.push(createStock("-" + arguments[j][i].stock, arguments[j][i].timestamp, stockCalc(arguments[j][i]) ));
+      }else{
+        mergeStocks.push(createStock("-" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
+        mergeStocks.push(createStock("+" + arguments[j][i].stock, arguments[j][i].timestamp, 0 ));
+      }
+    }
+    /* date data is the same for all stocks so only one load.
+    all dates were normalized in python*/
+  	allDates.push(outputFormat(format.parse(arguments[1][i].timestamp)));
+  }
+
+var margin = {top: 20, right: 100, bottom: 30, left: 40};
+var width = cWidth - margin.left - margin.right;
+var height = cHeight - margin.top - margin.bottom;
+
+var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "remove")
+    .style("position", "absolute")
+    .style("z-index", "20")
+    .style("visibility", "hidden")
+    .style("top", "30px")
+    .style("left", "55px");
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height-10, 0]);
+
+var z = d3.scale.ordinal()
+    .range(colorrange);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .ticks(d3.time.weeks);
+
+var yAxis = d3.svg.axis()
+    .scale(y);
+
+var yAxisr = d3.svg.axis()
+    .scale(y);
+
+var stack = d3.layout.stack()
+    .offset("zero")
+    .values(function(d) { return d.values; })
+    .x(function(d) { return d.date; })
+    .y(function(d) { return d.value; });
+
+ var stack2 = d3.layout.stack()
+    .offset("zero")
+    .values(function(d) { return d.values; })
+    .x(function(d) { return d.date; })
+    .y(function(d) { return d.value; });   
+
+
+var nest = d3.nest()
+    .key(function(d) { return d.key; });
+
+var nest2 = d3.nest()
+    .key(function(d) { return d.key; });    
+    
+
+var area = d3.svg.area()
+    //.interpolate("cardinal")
+    .x(function(d) { return x(d.date); })
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); })
+    //.interpolate("basis")
+    ;
+
+var area2 = d3.svg.area()
+    //.interpolate("cardinal")
+    .x(function(d) { return x(d.date); })
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); })
+    //.interpolate("basis")
+    ;    
+
+var svg = d3.select(".chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    //.attr("height", height + margin.top + margin.bottom)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	data = mergeStocks;
+	
+  	var layers = stack(nest.entries(data));
+
+  	x.domain(d3.extent(data, function(d) { return d.date; }));
+  	y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
+
+  	svg.selectAll(".layer")
+      .data(layers)
+    	.enter().append("path")
+      .attr("class", "layer")
+      .attr("d", function(d) { return area(d.values); })
+      //.style("stroke", "#333")
+      .style("fill", function(d, i) { 
+        switch(d.key){
+          case "+aapl":
+            return cColors[0];  
+          case "-aapl":
+            return cColors[5];       
+        }
+      });
+
+    var svg2 = d3.select(".chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + ",-10)");
+
+    var layers2 = stack2(nest2.entries(data)); 
+    x.domain(d3.extent(data, function(d) { return d.date; }));
+    y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
+
+    svg2.selectAll(".layer")
+      .data(layers2)
+      .enter().append("path")
+      .attr("class", "layer")
+      .attr("d", function(d) { return area(d.values); })
+      .attr("transform", "scale(1,-1) translate(0, -" + height + ")")
+      //.attr("x", "-100")
+      //.style("stroke", "#333")
+      .style("fill", function(d, i) { 
+        switch(d.key){
+          case "+aapl":
+            return cColors[0];  
+          case "-aapl":
+            return cColors[5];       
+        }
+      });
+
+  	svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  	svg.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + width + ", 0)")
+      .call(yAxis.orient("right"));
+
+  	svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis.orient("left"));
+
+  svg.selectAll(".layer")
+    .attr("opacity", 1)
+    .on("mouseover", function(d, i) {
+      svg.selectAll(".layer").transition()
+      .duration(250)
+      .attr("opacity", function(d, j) {
+        return j != i ? 0.6 : 1;
+      })
+  	})
+
+    .on("mousemove", function(d, i) {
+      mousex = d3.mouse(this);
+      mousex = mousex[0] + mouseXOffset;
+      mousey = d3.mouse(this);
+      mousey = mousey[1] - mouseYOffset;
+      var hoverDate = x.invert(mousex);
+      var invertedx = hoverDate.getMonth() + hoverDate.getDate();
+
+      //layer current selected
+      var selected = (d.values);
+  
+      var currentIndex = allDates.indexOf(outputFormat(hoverDate));
+      var outputValue = d.values[currentIndex].valueActual;
+
+      d3.select(this)
+      .classed("hover", true)
+      .attr("stroke", strokecolor)
+      .attr("stroke-width", "1px"), 
+      tooltip.html( "<p class='tooltip' >" + "<strong>" + d.key + "</strong>" + "<br>" + outputFormat(hoverDate) + " | " + "change: " + outputValue + "</p>" ).style("visibility", "visible")
+      .style("left", mousex + "px")  
+      .style("top", mousey + "px"); 
+    })
+    .on("mouseout", function(d, i) {
+     svg.selectAll(".layer")
+      .transition()
+      .duration(250)
+      .attr("opacity", "1");
+      d3.select(this)
+      .classed("hover", false)
+      .attr("stroke-width", "0px"), tooltip.html( "<p>" + d.key + "<br>" +   "</p>" ).style("visibility", "hidden");
+  	})
+    
+  	var vertical = d3.select(".chart")
+        .append("div")
+        .attr("class", "remove")
+        .style("position", "absolute")
+        .style("z-index", "19")
+        .style("width", "1px")
+        .style("height", "500px")
+        .style("top", "10px")
+        .style("bottom", "30px")
+        .style("left", "0px")
+        .style("background", "#fff");
+
+  	d3.select(".chart")
+      .on("mousemove", function(){  
+         mousex = d3.mouse(this);
+         mousex = mousex[0] + 25;
+         vertical.style("left", mousex + "px" )
+      })
+      .on("mouseover", function(){
+         mousex = d3.mouse(this);
+         mousex = mousex[0] + 20;
+         vertical.style("left", mousex + "px")
+      });
+
+      d3.select(window)
+      .on("scroll", function(){  
+         console.log("hello scroll" + window.scrollTo);
+      });
+
+}
+
+</script>
+</html>
