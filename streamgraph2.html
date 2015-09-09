@@ -164,6 +164,7 @@ var area2 = d3.svg.area()
     //.interpolate("basis")
     ;    
 
+//svg2 bottom chart
 var svg = d3.select(".chart").append("svg")
     .attr("width", width + margin.left + margin.right)
     //.attr("height", height + margin.top + margin.bottom)
@@ -182,7 +183,12 @@ var svg = d3.select(".chart").append("svg")
       .data(layers)
     	.enter().append("path")
       .attr("class", "layer")
-      .attr("d", function(d) { return area(d.values); })
+      //.attr("d", function(d) { return area(d.values); })
+      .attr("d", function(d) { 
+        if(d.key == "+aapl"){
+          return area(d.values); 
+        }
+      })
       //.style("stroke", "#333")
       .style("fill", function(d, i) { 
         switch(d.key){
@@ -193,6 +199,7 @@ var svg = d3.select(".chart").append("svg")
         }
       });
 
+//svg2 bottom chart
     var svg2 = d3.select(".chart").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -208,7 +215,12 @@ var svg = d3.select(".chart").append("svg")
       .data(layers2)
       .enter().append("path")
       .attr("class", "layer")
-      .attr("d", function(d) { return area(d.values); })
+      //.attr("d", function(d) { return area(d.values); })
+      .attr("d", function(d) { 
+        if(d.key == "-aapl"){
+          return area(d.values); 
+        }
+      })
       .attr("transform", "scale(1,-1) translate(0, -" + height + ")")
       //.attr("x", "-100")
       //.style("stroke", "#333")

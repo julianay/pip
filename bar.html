@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Price Bar Chart</title>
+	</head>
+	<style type="text/css">
+		body{
+			font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+			margin: auto;
+			position: relative;
+			width: 960px;
+			font-size:8px;
+		}
+		h1 {
+			font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight: 100;
+			color:#444;
+			font-size: 24px;
+		}
+	</style>
+	<script src="d3/d3.min.js"></script>
+	<script src="d3/queue.v1.min.js"></script>
+	<script src="d3/d3.legend.js"></script>
+
+	<script>
+	
+	//calling only one file
+	//d3.json("newData/m_aapl.json", draw);
+	//function draw(data){
+		//console.log("hello" + data[0].volume_change);
+	//}
+
+	var margin = {top:40, right:10, bottom:20, left: 10};
+	var width = 960 - margin.left - margin.right;
+	var height = 200 - margin.top - margin.bottom;
+
+	var stock1=[];
+	var stock2=[];
+
+	queue()
+		.defer(d3.json, "newData/m_aapl.json")
+		.defer(d3.json, "newData/m_msft.json")
+		.await(ready);
+
+	function ready(error, vol1, vol2){
+		for(var i=0; i < vol1.length; i++){
+			stock1.push(vol1[i].volume_change)
+		}
+		draw();
+	}
+
+function draw(){
+
+	console.log("min " + d3.min(stock1) + " - max " + d3.max(stock1));
+
+	var x = d3.scale.linear()
+									.domain([d3.min(stock1), d3.max(stock1)])
+									.range([0, 100]);
+	console.log("test " + x(-1));
+}
+
+
+	</script>
+
+
+	<body>
+		<h1>Price Change Bar Chart</h1>
+	</body>
+
+</html>
