@@ -13,7 +13,7 @@
 		}
 		h1 {
 			font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
-			font-weight: 100;
+			font-weight: 200;
 			color:#444;
 			font-size: 24px;
 		}
@@ -51,17 +51,41 @@
 
 function draw(){
 
+	var x = d3.scale.ordinal()
+				.domain(d3.range(stock1));
+
+	var xAxis = d3.svg.axis()
+				.scale(x)
+				.tickSize(0)
+				.tickPadding(6)
+				.orient("bottom")
+				.tickFormat(function(d){
+					myDate = new Date(format.parse(vol1[d].timestamp));
+					return(formatDayMonth(myDate));
+				});
+
 	console.log("min " + d3.min(stock1) + " - max " + d3.max(stock1));
 
-	var x = d3.scale.linear()
-									.domain([d3.min(stock1), d3.max(stock1)])
-									.range([0, 100]);
-	console.log("test " + x(-1));
+	var y = d3.scale.linear()
+				.domain([d3.min(stock1), d3.max(stock1)])
+				.range([0, 100]);
+	console.log("test " + y(-1));
+
+	var svg = d3.select("body").append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+		.append("rect")
+			.attr("x", function(d) { return x(d.x); } )
+			.attr("y", height)
+			.attr("width", x.rangeBand())
+			.attr("height", 0);
+
 }
 
 
 	</script>
-
 
 	<body>
 		<h1>Price Change Bar Chart</h1>
