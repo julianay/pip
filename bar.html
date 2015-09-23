@@ -9,7 +9,7 @@
 			margin: auto;
 			position: relative;
 			width: 960px;
-			font-size:8px;
+			font-size:6px;
 		}
 		h1 {
 			font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -17,14 +17,17 @@
 			color:#444;
 			font-size: 24px;
 		}
-		.chart div {
-			font:10px sans-serif;
-			background-color: black;
-			text-align: right;
-			padding: 3px;
-			margin: 1px;
-			color: white;
+		.chart rect {
+			fill: #000000;
 		}
+
+		.chart text{
+			fill: #999;
+			font: 9px sans-serif;
+			text-anchor: end;
+		}
+
+
 
 	</style>
 	<script src="d3/d3.min.js"></script>
@@ -40,7 +43,7 @@
 	//}
 
 	var margin = {top:40, right:10, bottom:20, left: 10};
-	var width = 960 - margin.left - margin.right;
+	var width = 800 - margin.left - margin.right;
 	var height = 200 - margin.top - margin.bottom;
 
 	var stock1=[];
@@ -53,31 +56,63 @@
 
 	function ready(error, vol1, vol2){
 		for(var i=0; i < vol1.length; i++){
-			stock1.push(vol1[i].volume_change)
+			stock1.push(vol1[i].messages/10)
 		}
-		draw();
+		//draw();
 	}
 
-	var data = [4, 8, 15, 16, 23, 42];
+	var x = d3.scale.ordinal()
+			.rangeRoundBands([0, width], .1);
+
+	var y = d3.scale.linear()
+			.range([height, 0]);
+
+	var xAxis = d3.svg.axis()
+				.scale(x)
+				.orient("bottom");
+
+	var yAxis = d3.svg.axis()
+				.scale(y)
+				.orient("left")
+				.ticks(10, "%");			
+
+	d3.tsv("data.tsv", type, function(error, data){
+		if(error) throw error;
+		draw();
+	});
+
+
+	//var data = [4, 8, 15, 16, 23, 42];
+	//var data = stock1;
+
 
 function draw(){
-	var div = document.createElement("div");
-	div.innerHTML = "Hello, world!";
-	document.body.appendChild(div);
-	var body = d3.select("body");
-	var div = body.append("div");
-	div.html("lalalal");
-	d3.selectAll("body")
-			.attr("class", "special")
-		.append("div")
-			.html("hello, world");
+	//var width = 420;
 
-	d3.select(".chart")
-		.selectAll("div")
-			.data(data)
-		.enter().append("div")
-			.style("width", function(d) { return d + 10 + "px"; } )
-			.text(function(d) { return d; } )
+
+	var barWidth = width / data.length;		
+
+	var chart = d3.select(".chart")
+			.attr("height", height)
+			.attr("width", barWidth * data.length);
+
+	var bar = chart.selectAll("g")
+				.data(data)
+			.enter().append("g")
+				.attr("transform", function(d, i){ return "translate(" + i * barWidth + ", 0)" ; });
+
+		bar.append("rect")
+			.attr("width", barWidth - 1)
+			.attr("height", function(d) { return y(d); })
+			//move all rects down since svg origin is top left
+			.attr("y", function(d) { return height - y(d); });
+
+		bar.append("text")
+			.attr("y", function(d) { return height - y(d) + 10; } )
+			.attr("x", barWidth / 2)
+			.attr("dx", ".35em")
+			.text(function(d) {return d; });		
+					
 }
 
 
@@ -85,7 +120,7 @@ function draw(){
 
 	<body>
 		<h1>Price Change Bar Chart</h1>
-		<div class = "chart" >
+		<svg class="chart"></svg>
 		</div>
 	</body>
 
