@@ -17,17 +17,24 @@
 			color:#444;
 			font-size: 24px;
 		}
-		.chart rect {
+
+		.bar {
 			fill: #000000;
 		}
 
-		.chart text{
-			fill: #999;
-			font: 9px sans-serif;
-			text-anchor: end;
+		.axis text{
+			font: 10px sans-serif;
+		}
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: #000;
+			shape-rendering: crispEdges;
 		}
 
-
+		.x.axis path{
+			display: none;
+		}
 
 	</style>
 	<script src="d3/d3.min.js"></script>
@@ -42,13 +49,16 @@
 		//console.log("hello" + data[0].volume_change);
 	//}
 
-	var margin = {top:40, right:10, bottom:20, left: 10};
-	var width = 800 - margin.left - margin.right;
-	var height = 200 - margin.top - margin.bottom;
-
+	var margin = {top:20, right:30, bottom:30, left: 40};
+	
+	var width = 960 - margin.left - margin.right;
+	var height = 500 - margin.top - margin.bottom;
+	
+	
 	var stock1=[];
 	var stock2=[];
 
+/*
 	queue()
 		.defer(d3.json, "newData/m_aapl.json")
 		.defer(d3.json, "newData/m_msft.json")
@@ -60,12 +70,14 @@
 		}
 		//draw();
 	}
+	*/
+
 
 	var x = d3.scale.ordinal()
-			.rangeRoundBands([0, width], .1);
+			.rangeRoundBands([0, width], .1);	
 
 	var y = d3.scale.linear()
-			.range([height, 0]);
+			.range([height, 0]);	
 
 	var xAxis = d3.svg.axis()
 				.scale(x)
@@ -74,54 +86,53 @@
 	var yAxis = d3.svg.axis()
 				.scale(y)
 				.orient("left")
-				.ticks(10, "%");			
+				.ticks(10, "%");
 
-	d3.tsv("data.tsv", type, function(error, data){
-		if(error) throw error;
-		draw();
+	var svg = d3.select("body").append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")				
+	
+	d3.tsv("data/data.tsv", type, function(error, data){
+		x.domain(data.map(function(d) { return d.letter; }));
+		y.domain([0, d3.max(data, function(d){ return d.frequency})]);
+		
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0" + height + ")")
+		.call(xAxis);
+
+	svg.append("g")
+		.attr("class", "y axis")
+		.call(yAxis);
+
+	svg.selectAll(".bar")
+		.data(data)
+	.enter().append("rect")
+		.attr("class", "bar")
+		.attr("x", function(d) { return x(d.letter); })
+		.attr("y", function(d){ return y(d.frequency); })		
+		.attr("height", function(d) {return height - y(d.frequency);})
+		.attr("width", x.rangeBand());
+					
+
 	});
 
 
-	//var data = [4, 8, 15, 16, 23, 42];
-	//var data = stock1;
 
+	
+	function type(d) {
+  		d.frequency = +d.frequency; // coerce to number
+  		return d;
+	}
 
-function draw(){
-	//var width = 420;
-
-
-	var barWidth = width / data.length;		
-
-	var chart = d3.select(".chart")
-			.attr("height", height)
-			.attr("width", barWidth * data.length);
-
-	var bar = chart.selectAll("g")
-				.data(data)
-			.enter().append("g")
-				.attr("transform", function(d, i){ return "translate(" + i * barWidth + ", 0)" ; });
-
-		bar.append("rect")
-			.attr("width", barWidth - 1)
-			.attr("height", function(d) { return y(d); })
-			//move all rects down since svg origin is top left
-			.attr("y", function(d) { return height - y(d); });
-
-		bar.append("text")
-			.attr("y", function(d) { return height - y(d) + 10; } )
-			.attr("x", barWidth / 2)
-			.attr("dx", ".35em")
-			.text(function(d) {return d; });		
-					
-}
 
 
 	</script>
 
 	<body>
 		<h1>Price Change Bar Chart</h1>
-		<svg class="chart"></svg>
-		</div>
 	</body>
 
 </html>
