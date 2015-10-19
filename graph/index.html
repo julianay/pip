@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  background-color: #111;
+
+}
+.node {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  -webkit-font-smoothing: antialised;
+  letter-spacing: 1.3px;
+
+}
+
+.link {
+  stroke: #fff;
+  stroke-opacity: .4;
+}
+
+
+</style>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script>
+
+var width = 1200,
+    height = 1000;
+
+var nodeHighlight = false;    
+var lastFill;
+
+
+var myString;    
+
+var color = d3.scale.category10();
+
+var force = d3.layout.force()
+    .charge(-900)
+    .linkDistance(width/10)
+    .size([width, height])
+    .linkStrength(0.8);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+d3.json("employees.json", function(error, graph) {
+  if (error) throw error;
+
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .gravity(0.1)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("line")
+      .attr("class", "link")
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+/*
+  var circleNodes = svg.selectAll(".circle")
+      .data(graph.nodes)
+    .enter().append("circle")
+      .attr("r", 5)
+      .style("fill", function(d) { return color(d.group); });
+      */
+
+  var circle = svg.selectAll("circle")
+    .data(graph.nodes)
+      .enter().append("circle")
+      .attr("r", 5)
+      .style("fill", function(d) { return color(d.group); })
+      .call(force.drag);  
+
+  var node = svg.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("text")
+      .text(function(d) { myString = d.name; return d.name + " " + d.group; })
+      //.attr("font-size", "15")
+      .attr("x", 300)
+      .attr("y", 300)
+      .attr("class", "node")
+      .style("fill", function(d) { return color(d.group); })
+      .call(force.drag)
+      .on("mouseover", highlightNode)
+      .on("mouseout", unHighlightNode);
+
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("x", function(d) { return d.x + 10; })
+        .attr("y", function(d) { return d.y + 5; });
+
+    circle.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  });
+});
+
+function highlightNode(){
+  lastFill = this.style.fill;
+  var aNode = d3.select(this)
+    .style("fill", "#fff");
+    nodeHighlight = true;
+}
+
+function unHighlightNode(){
+  var aNode = d3.select(this)
+    .style("fill", lastFill);
+    nodeHighlight = false;
+}
+
+
+</script>

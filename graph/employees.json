@@ -1,0 +1,32 @@
+{
+  "nodes":[
+    {"name":"0 Employee Name","group":1},
+    {"name":"1 Employee Name","group":1},
+    {"name":"2 Employee Name","group":1},
+    {"name":"3 Employee Name","group":2},
+    {"name":"4 Employee Name","group":2},
+    {"name":"5 Employee Name","group":3},
+    {"name":"6 Employee Name","group":3},
+    {"name":"7 Employee Name","group":3},
+    {"name":"8 Employee Name","group":4},
+    {"name":"9 Employee Name","group":5},
+    {"name":"10 Employee Name","group":6},
+    {"name":"11 Employee Name","group":6},
+    {"name":"12 Employee Name","group":7},
+    {"name":"13 Employee Name","group":7},
+    {"name":"14 Employee Name","group":7}
+  ],
+  "links":[
+    {"source":1,"target":0,"value":1},
+    {"source":2,"target":0,"value":1},
+    {"source":2,"target":0,"value":1},
+    {"source":3,"target":0,"value":1},
+    {"source":4,"target":0,"value":1},
+    {"source":5,"target":6,"value":5},
+    {"source":6,"target":7,"value":10},
+    {"source":7,"target":5,"value":10},
+    {"source":10,"target":11,"value":15},
+    {"source":11,"target":10,"value":15}
+
+  ]
+}
