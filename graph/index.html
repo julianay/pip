@@ -12,12 +12,15 @@ body {
   font-size: 16px;
   -webkit-font-smoothing: antialised;
   letter-spacing: 1.3px;
-
 }
 
 .link {
   stroke: #fff;
   stroke-opacity: .4;
+}
+
+.tooltip{
+  background-color: #111;
 }
 
 
@@ -109,13 +112,27 @@ function highlightNode(){
   lastFill = this.style.fill;
   var aNode = d3.select(this)
     .style("fill", "#fff");
-    nodeHighlight = true;
+  nodeHighlight = true;
+  //console.log("detail " + d3.select(this).attr("x"));
+  showDetail(this);
+  var body = d3.select("body");
+  var tooltip = body.append("div")
+      .attr("class", "tooltip")
+      .style("left", 0 + "px")
+      .style("top", 0 + "px")
+      .attr("width", "100")
+      .attr("height", "100");
+
 }
 
 function unHighlightNode(){
   var aNode = d3.select(this)
     .style("fill", lastFill);
-    nodeHighlight = false;
+  nodeHighlight = false;
+}
+
+function showDetail(t){
+  console.log("detail " + d3.select(t).attr("x"));
 }
 
 
