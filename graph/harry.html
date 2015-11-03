@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  background-color: #111;
+
+}
+.node {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  -webkit-font-smoothing: antialised;
+  letter-spacing: 1.3px;
+}
+
+.link {
+  stroke: #fff;
+  stroke-opacity: .4;
+}
+
+.tooltip{
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  color: #000;
+  background-color: #fff;
+  position: absolute;
+  padding: 2px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 10;
+}
+
+
+</style>
+<body>
+<svg width = "1000" height="1000">
+  <path fill-rule="evenodd" clip-rule="evenodd" fill="#999999" d="M0,13C0,5.82,5.82,0,13,0h51c7.18,0,13,5.82,13,13s-5.82,13-13,13H47l-7,15l-7-15H13C5.82,26,0,20.18,0,13z"/>
+</svg>    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script>
+
+
+var width = 1000,
+    height =1000;
+
+var nodeHighlight = false;    
+var lastFill;
+
+
+var myString;    
+
+//var color = d3.scale.category10();
+var color = ["#777","#888","#999", "#aaa", "#bbb", "#ccc", "#ddd", "#eee", "#fff"];
+
+var force = d3.layout.force()
+    .charge(-900)
+    .linkDistance(width/10)
+    .size([width, height])
+    .linkStrength(0.8);
+
+var svg = d3.select("svg").append("g")
+    .attr("width", width)
+    .attr("height", height);
+
+d3.json("employees.json", function(error, graph) {
+  if (error) throw error;
+
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .gravity(0.1)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("line")
+      .attr("class", "link")
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+  var circle = svg.selectAll("circle")
+    .data(graph.nodes)
+      .enter().append("circle")
+      .attr("r", 5)
+      //.style("fill", function(d) { return color(d.group); })
+      .style("fill", function(d) { return color[d.group]; })
+
+      .call(force.drag);
+
+  var node = svg.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("text")
+      .text(function(d) { myString = d.name; return d.name + " " + d.group; })
+      //.attr("font-size", "15")
+      .attr("x", 10)
+      .attr("y", 10)
+      .attr("class", "node")
+      //.style("fill", function(d) { return color(d.group); })
+      .style("fill", function(d) { return color[d.group]; })
+      .call(force.drag)
+      .on("mouseover", function(d) {highlightNode(this, d)})
+      .on("mouseout", unHighlightNode);
+
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("x", function(d) { return d.x + 10; })
+        .attr("y", function(d) { return d.y + 5; });
+
+    circle.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  });
+
+
+  var tooltip = d3.select("path")
+    .attr("class", "tooltip")
+    .style("width", "100px")
+    .style("height", "20px")
+    .style("visibility", "hidden");
+    //.style("top", 0)
+    //.style("left", 0);
+
+});
+
+function highlightNode(t, d){
+  lastFill = t.style.fill;
+  var aNode = d3.select(t)
+    .style("fill", "#fff");
+  nodeHighlight = true;
+  console.log("detail " + d3.select(t).attr("x"));
+  showDetail(t, d);
+}
+
+function unHighlightNode(){
+  var aNode = d3.select(this)
+    .style("fill", lastFill);
+  nodeHighlight = false;
+  hideDetail();
+}
+
+function showDetail(t, d){
+  //console.log("test: " + (parseInt(d3.select(t).attr("x")) + 10));
+    var tooltip = d3.selectAll(".tooltip")
+      //.style("top", d3.select(t).attr("y") - 60 + "px")
+      //.style("left", d3.select(t).attr("x") + "px")
+      //.attr("x", "1000px")
+      //.attr("y", "10px")
+      //.attr("transform", "translate(" + d3.select(t).attr("x") + "px" + ", " + d3.select(t).attr("y") + "px" + ")")
+      .attr("transform", "translate(" + (parseInt(d3.select(t).attr("x")) - 10) + "," + (parseInt(d3.select(t).attr("y")) - 60) + ")")
+      .style("visibility", "visible")
+      .html("<p>" + d.description + "</p>");
+
+      //console.log("t" + d3.select(t).getText());
+}
+
+function hideDetail(){
+   var tooltip = d3.selectAll(".tooltip")
+      .style("visibility", "hidden");
+}
+
+
+</script>
