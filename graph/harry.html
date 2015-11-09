@@ -24,19 +24,20 @@ body {
   font-weight: 300;
   font-size: 11px;
   color: #000;
-  background-color: #fff;
+  /*background-color: #fff;*/
+  fill: #fff;
   position: absolute;
   padding: 2px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  z-index: 10;
+  z-index: 1000;
 }
 
 
 </style>
 <body>
 <svg width = "1000" height="1000">
-  <path fill-rule="evenodd" clip-rule="evenodd" fill="#999999" d="M0,13C0,5.82,5.82,0,13,0h51c7.18,0,13,5.82,13,13s-5.82,13-13,13H47l-7,15l-7-15H13C5.82,26,0,20.18,0,13z"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" fill="#999999" d="M253.4,89.2 57.2,89.2 57.2,150.7 83,150.7 83,164.4 99.9,150.7 253.4,150.7z"/>
 </svg>    
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 <script>
@@ -151,9 +152,12 @@ function showDetail(t, d){
       //.attr("x", "1000px")
       //.attr("y", "10px")
       //.attr("transform", "translate(" + d3.select(t).attr("x") + "px" + ", " + d3.select(t).attr("y") + "px" + ")")
-      .attr("transform", "translate(" + (parseInt(d3.select(t).attr("x")) - 10) + "," + (parseInt(d3.select(t).attr("y")) - 60) + ")")
-      .style("visibility", "visible")
-      .html("<p>" + d.description + "</p>");
+      .attr("transform", "translate(" + (parseInt(d3.select(t).attr("x")) - 50) + "," + (parseInt(d3.select(t).attr("y")) - 180) + ")")
+      .style("visibility", "visible");
+
+      var text = d3.selectAll(".tooltip").selectAll("text")
+      	.append("text");
+      /*.html("<p>" + d.description + "</p>");*/
 
       //console.log("t" + d3.select(t).getText());
 }
