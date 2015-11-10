@@ -20,26 +20,33 @@ body {
 }
 
 .tooltip{
+  /*background-color: #fff;*/
+  fill: #333;
+  position: absolute;
+  z-index: 100;
+  visibility: hidden;
+}
+
+.tooltipText{
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-weight: 300;
   font-size: 11px;
-  color: #000;
-  /*background-color: #fff;*/
-  fill: #fff;
-  position: absolute;
-  padding: 2px;
+  color: #555;
   text-transform: uppercase;
   letter-spacing: 1px;
-  z-index: 1000;
+  fill: #fff;
+  /*position: absolute;*/
+  z-index: 101;
+  visibility: hidden;
 }
 
 
 </style>
 <body>
 <svg width = "1000" height="1000">
-  <path fill-rule="evenodd" clip-rule="evenodd" fill="#999999" d="M253.4,89.2 57.2,89.2 57.2,150.7 83,150.7 83,164.4 99.9,150.7 253.4,150.7z"/>
+  <path class="tooltip" fill-rule="evenodd" clip-rule="evenodd" fill="#999999" d="M253.4,89.2 57.2,89.2 57.2,150.7 83,150.7 83,164.4 99.9,150.7 253.4,150.7z"/>
 </svg>    
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script src="../d3/d3.min.js"></script>
 <script>
 
 
@@ -117,15 +124,27 @@ d3.json("employees.json", function(error, graph) {
         .attr("cy", function(d) { return d.y; });
   });
 
-
+/*
   var tooltip = d3.select("path")
     .attr("class", "tooltip")
     .style("width", "100px")
     .style("height", "20px")
     .style("visibility", "hidden");
-    //.style("top", 0)
-    //.style("left", 0);
+    */
+    
+  var tooltip = d3.selectAll("g")
+      
+      tooltip.append("text")
+        .attr("class", "tooltipText")
+        .attr("x", "70")
+        .attr("y", "120")
+        .text("hello");
 
+      tooltip.append("path")
+        .attr("class", "tooltip")
+        .style("width", "100px")
+        .style("height", "20px")
+        .style("visibility", "hidden");
 });
 
 function highlightNode(t, d){
@@ -155,16 +174,17 @@ function showDetail(t, d){
       .attr("transform", "translate(" + (parseInt(d3.select(t).attr("x")) - 50) + "," + (parseInt(d3.select(t).attr("y")) - 180) + ")")
       .style("visibility", "visible");
 
-      var text = d3.selectAll(".tooltip").selectAll("text")
-      	.append("text");
-      /*.html("<p>" + d.description + "</p>");*/
+      var tooltipText = d3.selectAll("g").selectAll(".tooltipText")
+      .attr("transform", "translate(" + (parseInt(d3.select(t).attr("x")) - 50) + "," + (parseInt(d3.select(t).attr("y")) - 180) + ")")
+        .style("visibility", "visible");
 
-      //console.log("t" + d3.select(t).getText());
 }
 
 function hideDetail(){
    var tooltip = d3.selectAll(".tooltip")
       .style("visibility", "hidden");
+   var tooltip = d3.selectAll(".tooltipText")
+      .style("visibility", "hidden");   
 }
 
 
