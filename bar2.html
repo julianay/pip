@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Letter Frequency</title>
+	</head>
+	<style type="text/css">
+		body{
+			font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+			margin: auto;
+			position: relative;
+			width: 960px;
+			font-size:6px;
+		}
+		h1 {
+			font-family: "Helvetica Neue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight: 200;
+			color:#444;
+			font-size: 24px;
+		}
+
+		.bar {
+			fill: #000000;
+		}
+
+		.bar:hover {
+			fill:#999;
+		}
+
+		.axis {
+			font: 10px sans-serif;
+		}
+
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: #000;
+			shape-rendering: crispEdges;
+		}
+
+
+	</style>
+	<script src="d3/d3.min.js"></script>
+	<script src="d3/queue.v1.min.js"></script>
+	<script src="d3/d3.legend.js"></script>
+
+	<body>
+		<h1>Letter Frequency</h1>
+	</body>
+
+	<script>
+
+	var margin = {top:20, right:30, bottom:30, left: 40};
+	
+	var width = 960 - margin.left - margin.right;
+	var height = 200 - margin.top - margin.bottom;
+
+
+	//setup scales
+	var x = d3.scale.ordinal()
+			.rangeBands([0, width], .1);  //.1 is spacing between
+
+	var y = d3.scale.linear()
+			.range([height, 0]); //height first - svg origin is top left
+
+	var xAxis = d3.svg.axis()
+				.scale(x)
+				.orient("bottom");
+
+	var yAxis = d3.svg.axis()
+				.scale(y)
+				.orient("left")
+				.ticks(5, "%");
+
+	var svg = d3.select("body").append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+		.append("g") //grouping to translate
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");	
+
+	//loading data
+	d3.tsv("data/data.tsv", type, function(error, data){
+		x.domain(data.map(function(d) { return d.letter })); /* .map creates a new array - domain maps them output range */
+		y.domain([0, d3.max(data, function(d){ return d.frequency})]);
+		
+	//adding x axis	
+	svg.append("g")
+		.attr("class", "axis")
+		.attr("transform", "translate(0," + height + ")") //moving scale to bottom
+		.call(xAxis);
+
+	//adding y axis
+	svg.append("g")
+			.attr("class", "axis")
+			.call(yAxis)
+
+		//adding label to y axis
+		.append("text") 
+			.attr("transform", "rotate(-90)")
+			.attr("y", 6)
+			.attr("dy", ".71em")
+			.style("text-anchor", "end")
+			.text("Frequency");
+
+	//adding bars
+	svg.selectAll(".bar")
+		.data(data)
+	.enter().append("rect")
+		.attr("class", "bar")
+		.attr("x", function(d) { return x(d.letter); }) // x is scale function created above
+		.attr("width", x.rangeBand())
+		.attr("y", function(d){ return y(d.frequency); })		
+		.attr("height", function(d) { return height - y(d.frequency);})	// y is scale function created above
+	});
+
+	
+	function type(d) {
+  		d.frequency = +d.frequency; // coerce to number
+  		return d;
+	}
+
+	</script>
+
+	
+
+</html>
