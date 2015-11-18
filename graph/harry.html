@@ -3,7 +3,14 @@
 <style>
 
 body {
-  background-color: #111;
+  background: white;
+  background: -moz-radial-gradient(center, ellipse cover, white 0%, #f6f6f6 47%, #e8e8e2 100%);
+  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, white), color-stop(47%, #f6f6f6), color-stop(100%, #e8e8e2));
+  background: -webkit-radial-gradient(center, ellipse cover, white 0%, #f6f6f6 47%, #e8e8e2 100%);
+  background: -o-radial-gradient(center, ellipse cover, white 0%, #f6f6f6 47%, #e8e8e2 100%);
+  background: -ms-radial-gradient(center, ellipse cover, white 0%, #f6f6f6 47%, #e8e8e2 100%);
+  background: radial-gradient(ellipse at center, white 0%, #f6f6f6 47%, #e8e8e2 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e8e8e2', GradientType=1 );
 
 }
 .node {
@@ -15,7 +22,7 @@ body {
 }
 
 .link {
-  stroke: #fff;
+  stroke: #444;
   stroke-opacity: .4;
 }
 
@@ -32,25 +39,31 @@ body {
   font-weight: 300;
   font-size: 11px;
   color: #555;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  fill: #fff;
-  /*position: absolute;*/
+  fill: #555;
   z-index: 101;
   visibility: hidden;
+}
+
+.tooltipText h4{
+  font-size: 15px;
+}
+
+.tooltipText p{
+  font-size: 11px;
+  margin-top: -20px;
 }
 
 
 </style>
 <body>
 <svg width = "1000" height="1000">
-  <path class="tooltip" fill-rule="evenodd" clip-rule="evenodd" fill="#999999" d="M253.4,89.2 57.2,89.2 57.2,150.7 83,150.7 83,164.4 99.9,150.7 253.4,150.7z"/>
+
 </svg>    
 <script src="../d3/d3.min.js"></script>
 <script>
 
 
-var width = 1000,
+var width = 800,
     height =1000;
 
 var nodeHighlight = false;    
@@ -60,7 +73,7 @@ var lastFill;
 var myString;    
 
 //var color = d3.scale.category10();
-var color = ["#777","#888","#999", "#aaa", "#bbb", "#ccc", "#ddd", "#eee", "#fff"];
+var color = ["#000","#111","#222", "#333", "#444", "#555", "#666", "#777", "#888"];
 
 var force = d3.layout.force()
     .charge(-900)
@@ -72,7 +85,7 @@ var svg = d3.select("svg").append("g")
     .attr("width", width)
     .attr("height", height);
 
-d3.json("employees.json", function(error, graph) {
+d3.json("harry.json", function(error, graph) {
   if (error) throw error;
 
   force
@@ -99,12 +112,11 @@ d3.json("employees.json", function(error, graph) {
   var node = svg.selectAll(".node")
       .data(graph.nodes)
     .enter().append("text")
-      .text(function(d) { myString = d.name; return d.name + " " + d.group; })
-      //.attr("font-size", "15")
+      .text(function(d) { myString = d.name; return d.name; })
+      //.text(function(d) { myString = d.name; return d.name + " " + d.group; })
       .attr("x", 10)
       .attr("y", 10)
       .attr("class", "node")
-      //.style("fill", function(d) { return color(d.group); })
       .style("fill", function(d) { return color[d.group]; })
       .call(force.drag)
       .on("mouseover", function(d) {highlightNode(this, d)})
@@ -124,33 +136,32 @@ d3.json("employees.json", function(error, graph) {
         .attr("cy", function(d) { return d.y; });
   });
 
-/*
-  var tooltip = d3.select("path")
-    .attr("class", "tooltip")
-    .style("width", "100px")
-    .style("height", "20px")
-    .style("visibility", "hidden");
-    */
     
   var tooltip = d3.selectAll("g")
-      
-      tooltip.append("text")
+
+      tooltip.selectAll("image").data([0])
+        .enter()
+        .append("svg:image")
+        .attr("xlink:href", "balloon.png")
+        .attr("class", "tooltip")
+        .attr("x", "0")
+        .attr("y", "0")
+        .attr("width", "266")
+        .attr("height", "121")
+  
+      tooltip.append("foreignObject")
         .attr("class", "tooltipText")
         .attr("x", "70")
         .attr("y", "120")
-        .text("hello");
+        .attr("width", "250")
+        ;
 
-      tooltip.append("path")
-        .attr("class", "tooltip")
-        .style("width", "100px")
-        .style("height", "20px")
-        .style("visibility", "hidden");
 });
 
 function highlightNode(t, d){
   lastFill = t.style.fill;
   var aNode = d3.select(t)
-    .style("fill", "#fff");
+    .style("fill", "#000");
   nodeHighlight = true;
   console.log("detail " + d3.select(t).attr("x"));
   showDetail(t, d);
@@ -171,12 +182,14 @@ function showDetail(t, d){
       //.attr("x", "1000px")
       //.attr("y", "10px")
       //.attr("transform", "translate(" + d3.select(t).attr("x") + "px" + ", " + d3.select(t).attr("y") + "px" + ")")
-      .attr("transform", "translate(" + (parseInt(d3.select(t).attr("x")) - 50) + "," + (parseInt(d3.select(t).attr("y")) - 180) + ")")
+
+      .attr("transform", "translate(" + (parseInt(d3.select(t).attr("x")) + 50) + "," + (parseInt(d3.select(t).attr("y")) + 20) + ")")
       .style("visibility", "visible");
 
       var tooltipText = d3.selectAll("g").selectAll(".tooltipText")
-      .attr("transform", "translate(" + (parseInt(d3.select(t).attr("x")) - 50) + "," + (parseInt(d3.select(t).attr("y")) - 180) + ")")
-        .style("visibility", "visible");
+      .attr("transform", "translate(" + (parseInt(d3.select(t).attr("x")) + 80) + "," + (parseInt(d3.select(t).attr("y")) - 85) + ")")
+        .style("visibility", "visible")
+        .html("<h4>" + d.name + "</h4>" + "<p>" + d.description + "<br>T: + 1-212-270-2787 <br> E: employee@company.com" + "</p>");
 
 }
 
