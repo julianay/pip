@@ -13,6 +13,16 @@ body {
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e8e8e2', GradientType=1 );
 
 }
+
+h1 {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  font-size: 30px;
+  -webkit-font-smoothing: antialised;
+  letter-spacing: 0.1px;
+  text-transform: uppercase;
+  margin-left: 380px;
+}
 .node {
   font-family: "HelveticaNeue-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
@@ -56,15 +66,16 @@ body {
 
 </style>
 <body>
-<svg width = "1000" height="1000">
+<h1>People Search</h1>
+<svg width = "1200" height="800">
 
 </svg>    
 <script src="../d3/d3.min.js"></script>
 <script>
 
 
-var width = 800,
-    height =1000;
+var width = 1000,
+    height =600;
 
 var nodeHighlight = false;    
 var lastFill;
